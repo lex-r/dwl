@@ -20,4 +20,11 @@ jobs:
       run: go build -v ./...
 
     - name: Test
-      run: go test -v ./...
+      run: go test -v -mod=readonly -covermode=count -coverprofile=coverage.out ./...
+
+    - name: Reporting
+      env:
+        COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        go install github.com/mattn/goveralls@v0.0.11
+        goveralls -coverprofile=coverage.out -service=github
