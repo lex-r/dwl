@@ -9,11 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/golang/mock/gomock"
-
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewDownloaderWithOptions(t *testing.T) {
@@ -71,8 +69,6 @@ func TestNewDownloaderWithOptions(t *testing.T) {
 				assert.Equal(t, *tt.want.timeout, got.timeout)
 			}
 			if tt.want.client != nil {
-				//assert.EqualValues(t, tt.want.client, got.client)
-				//assert.Exactly(t, tt.want.client, got.client)
 				assert.Same(t, tt.want.client, got.client)
 			}
 		})
