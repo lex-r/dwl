@@ -112,7 +112,7 @@ func (d *Downloader) downloadLink(ctx context.Context, link string) {
 
 func (d *Downloader) fileNameForLink(link string) string {
 	u, _ := url.Parse(link)
-	if u.Path == "" {
+	if u.Path == "" || u.Path == "/" || strings.HasSuffix(u.Path, "/") {
 		return "index.html"
 	}
 
