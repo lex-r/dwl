@@ -1,4 +1,4 @@
-# dwl [![Build Status](https://github.com/lex-r/dwl/workflows/build/badge.svg)](https://github.com/lex-r/dwl/actions) [![Coverage Status](https://coveralls.io/repos/github/lex-r/dwl/badge.svg?branch=master)](https://coveralls.io/github/lex-r/dwl?branch=master)
+# dwl [![Build Status](https://github.com/lex-r/dwl/actions/workflows/go.yml/badge.svg)](https://github.com/lex-r/dwl/actions) [![Coverage Status](https://coveralls.io/repos/github/lex-r/dwl/badge.svg)](https://coveralls.io/github/lex-r/dwl?branch=master)
 
 Simple file downloader.
 
