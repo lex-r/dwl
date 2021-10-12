@@ -18,9 +18,10 @@ func TestNewDownloaderWithOptions(t *testing.T) {
 	testClient := &http.Client{}
 
 	type want struct {
-		threads *int
-		timeout *time.Duration
-		client  HttpClient
+		threads   *int
+		timeout   *time.Duration
+		userAgent *string
+		client    HttpClient
 	}
 
 	tests := []struct {
@@ -50,13 +51,26 @@ func TestNewDownloaderWithOptions(t *testing.T) {
 			want: want{client: testClient},
 		},
 		{
+			name: "with user-agent",
+			opts: []OptFunc{
+				WithUserAgent("test agent"),
+			},
+			want: want{userAgent: stringPtr("test agent")},
+		},
+		{
 			name: "with all options",
 			opts: []OptFunc{
 				WithTimeout(time.Second * 8),
 				WithThreads(16),
 				WithHttpClient(testClient),
+				WithUserAgent("user agent"),
 			},
-			want: want{timeout: durationPtr(time.Second * 8), threads: intPtr(16), client: testClient},
+			want: want{
+				timeout:   durationPtr(time.Second * 8),
+				threads:   intPtr(16),
+				client:    testClient,
+				userAgent: stringPtr("user agent"),
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -71,8 +85,19 @@ func TestNewDownloaderWithOptions(t *testing.T) {
 			if tt.want.client != nil {
 				assert.Same(t, tt.want.client, got.client)
 			}
+			if tt.want.userAgent != nil {
+				assert.Equal(t, *tt.want.userAgent, got.userAgent)
+			}
 		})
 	}
+}
+
+func TestNewDownloaderDefaultOptions(t *testing.T) {
+	got, _ := NewDownloader(nil)
+	assert.Same(t, http.DefaultClient, got.client)
+	assert.Equal(t, DefaultThreadOpt, got.threads)
+	assert.Equal(t, DefaultTimeoutOpt, got.timeout)
+	assert.Equal(t, DefaultUserAgent(), got.userAgent)
 }
 
 func TestDownloader_Download(t *testing.T) {
@@ -208,4 +233,8 @@ func durationPtr(d time.Duration) *time.Duration {
 
 func intPtr(i int) *int {
 	return &i
+}
+
+func stringPtr(s string) *string {
+	return &s
 }

@@ -27,6 +27,7 @@ func main() {
 	dwl, err := downloader.NewDownloader(svr,
 		downloader.WithTimeout(cfg.Timeout),
 		downloader.WithThreads(cfg.Threads),
+		downloader.WithUserAgent(cfg.UserAgent),
 	)
 	if err != nil {
 		panic(err)

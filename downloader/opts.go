@@ -25,3 +25,10 @@ func WithThreads(t int) OptFunc {
 		d.threads = t
 	}
 }
+
+// WithUserAgent sets user-agent value to send with request.
+func WithUserAgent(a string) OptFunc {
+	return func(d *Downloader) {
+		d.userAgent = a
+	}
+}

@@ -2,6 +2,7 @@ package downloader
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -9,6 +10,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/lex-r/dwl/app"
 )
 
 const (
@@ -28,20 +31,22 @@ type Saver interface {
 
 // Downloader downloads files.
 type Downloader struct {
-	client  HttpClient
-	saver   Saver
-	threads int
-	dir     string
-	timeout time.Duration
+	client    HttpClient
+	saver     Saver
+	threads   int
+	dir       string
+	timeout   time.Duration
+	userAgent string
 }
 
 // NewDownloader create new instance of Downloader.
 func NewDownloader(saver Saver, opts ...OptFunc) (*Downloader, error) {
 	d := &Downloader{
-		client:  http.DefaultClient,
-		saver:   saver,
-		threads: DefaultThreadOpt,
-		timeout: DefaultTimeoutOpt,
+		client:    http.DefaultClient,
+		saver:     saver,
+		threads:   DefaultThreadOpt,
+		timeout:   DefaultTimeoutOpt,
+		userAgent: DefaultUserAgent(),
 	}
 
 	for _, opt := range opts {
@@ -82,7 +87,7 @@ func (d *Downloader) downloadLink(ctx context.Context, link string) {
 	ctx, cancel := context.WithTimeout(ctx, d.timeout)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, link, nil)
+	req, err := d.makeRequest(ctx, link)
 	if err != nil {
 		log.Printf("error making request for link %s: %s", link, err)
 		return
@@ -110,6 +115,17 @@ func (d *Downloader) downloadLink(ctx context.Context, link string) {
 	}
 }
 
+func (d *Downloader) makeRequest(ctx context.Context, link string) (*http.Request, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, link, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("User-Agent", d.userAgent)
+
+	return req, nil
+}
+
 func (d *Downloader) fileNameForLink(link string) string {
 	u, _ := url.Parse(link)
 	if u.Path == "" || u.Path == "/" || strings.HasSuffix(u.Path, "/") {
@@ -119,4 +135,9 @@ func (d *Downloader) fileNameForLink(link string) string {
 	parts := strings.Split(u.Path, "/")
 
 	return parts[len(parts)-1]
+}
+
+// DefaultUserAgent returns default user-agent value.
+func DefaultUserAgent() string {
+	return fmt.Sprintf("dwl/%s", app.Version)
 }
